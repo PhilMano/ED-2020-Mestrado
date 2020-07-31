@@ -104,7 +104,7 @@ public class Client {
 						System.out.println("--------------------------------------------------------");
 					} else {
 						System.out.println();
-						System.out.println("Impossível liberar fila de requisiçoes pois está vazia");
+						System.out.println("Impossível atender a fila de requisiçoes pois está vazia");
 					}
 					
 					System.out.println();

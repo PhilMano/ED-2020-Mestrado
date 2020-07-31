@@ -182,7 +182,7 @@ class ClientHandler extends Thread {
 									System.out.println(msn.toString());
 									System.out.println("Service resquest: banco de dados");
 									dos.writeUTF(msn.toString());
-									toreturn = "Acessando banco de Dados";
+									toreturn = "Acessando banco de Dados...";
 									dos.writeUTF(toreturn);
 									break;
 

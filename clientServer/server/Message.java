@@ -44,7 +44,7 @@ public class Message implements Serializable{
 
 	@Override
 	public String toString() {
-		return "Nome do Client: " + name + "\nPrioridade: " + priority;
+		return "Nome do Cliente: " + name + "\nPrioridade: " + priority;
 	}
 	
 	
