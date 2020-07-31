@@ -1,77 +1,136 @@
 package client;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Iterator;
 import java.util.Scanner;
 
 public class Client {
-	
-	public static void main(String[] args) {
-		
-		Scanner sc = new Scanner(System.in);
-		PriorityQueue<Integer> pqueue = new PriorityQueue<Integer>();
-		String a = "exit";
+
+	public static void main(String[] args) throws IOException {
 		try {
-			
-			System.out.print("Números de clientes: ");
-			int cli = sc.nextInt();
-			sc.nextLine();
-			
-			System.out.println("Serviços Disponíveis: ");
-			System.out.println("1: retorna Data ");
-			System.out.println("2: retorna Hora ");
-			System.out.println("3: retorna Date e Hora");
-			
-			
-			
-			for (int i = 1; i <= cli; i++) {
-				System.out.println();
-				System.out.println("Cliente " + i);
-				System.out.print("Nome do Cliente: ");
-				String nameCli = sc.next();
-				System.out.print("Priority: ");
-				int priority = sc.nextInt();
-				sc.nextLine();
-				System.out.print("Service: ");
-				int service = sc.nextInt();
-				sc.nextLine();
-				
-				// PROXY
-				pqueue.enqueue(new Message(nameCli, priority, service), priority);
+			Scanner scn = new Scanner(System.in);
 
-			}
-			
-			
-			Socket s = new Socket("localhost", 3128);
-			ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-			ObjectInputStream in = new ObjectInputStream(s.getInputStream());
-			
-			for (int i = 0; i < cli; i++) {
-				
-				System.out.println();
-				out.writeObject(pqueue.dequeueO());
-				System.out.println(in.readObject());
-				System.out.println(in.readUTF());
-				System.out.println(in.readObject());
-				System.out.println();
-				
-			}
-			out.writeObject(a);
-			s.close();
-			
+			// OBTENDO IP LOCAL DO HOST
+			InetAddress ip = InetAddress.getByName("localhost");
 
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
+			// ESTABELECENDO CONEXÃO COM O SERVIDOR NA PORTAA 12345
+			Socket s = new Socket(ip, 12345);
+
+			// OBTENDO FLUXO DE ENTRADA E SAÍDA
+			DataInputStream dis = new DataInputStream(s.getInputStream());
+			DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+			
+			
+			/*
+			 * NO CLIENTE OCORRERÁ O PROCESSO DE SIMULAÇÃO DE UMA CONEXÃO COM O SERVIDOR CONTENDO OS SEGUINTES SERVIÇOS
+			 * ABAIXO, INICIALMENTE PENSOU EM ALOCAR A PRIORIDADE UTILIZANDO A MESMA NUMERAÇÃO DO SERVIÇO, PORÉM DEPEN-
+			 * DENDO DO USUÁRIO A SUA PRIORIDADE VAI SER MAIOR MESMO COM SERVIÇOS QUE PODEM CONSUMIR MAIS TEMPO PARA SE-
+			 * REM PROCESSADOS, UM EXEMPLO É UM USUÁRIO COMUM PEDINDO INFORMAÇÃO DE DATA DO SERVIDOR ENQUANTO OUTRO CLI-
+			 * ENTE FAZ A REQUISÇÃO DE ACESSO A UM BD, PORÉM ESSE CLIENTE É O CHEFE DA EMPRESA QUE ESTÁ VERIFICANDO ALGO
+			 * NO BD, TEORICAMENTE O CLIENTE IA SER CONCTAR NO SERVIDOR, E DO SERVIDOR IRIA SE INICAR OUTRA CONECXÃO COM
+			 * O BD ISSO CERTAMENTE TOMA MAIS TEMPO QUE APENAS RETORNAR A HORA, PORÉM O CLIENTE QUE REQUISITA TEM MAIOR 
+			 * PRIORIDADE.
+			 * 
+			 * ENTÃO NESSA ATIVIDADE A PRIORIDADE SERÁ ATRELADA AO CLIENTE E NÃO SO SERVIÇO. 
+			 */
+			
+			System.out.println("Serviço 1: Data");
+			System.out.println("Serviço 2: Hora");
+			System.out.println("Serviço 3: Data e Hora");
+			System.out.println("Serviço 4: Impressão");
+			System.out.println("Serviço 5: Acesso a BD");
+			System.out.println();
+			int err;
+			
+			// O LOOP PROCESSA E EXECUTA AS TROCAS DE INFORMAAÇÕES COM SERVIDOR 
+			while (true) {
+				System.out.println(dis.readUTF());
+				String tosend = scn.nextLine();
+				dos.writeUTF(tosend);
+				
+			
+				
+
+				// CASO O CLIENTE DIGITE exit A CONEXÃO SERÁ FECHADA INTERROMPENDO O LOOP WHILE
+				//if (tosend.equals("e")) {
+				//	System.out.println();
+				//	System.out.println("Closing this connection");
+				//	s.close();
+				//	System.out.println("Connection closed");
+				//	break;
+				//}
+
+				// PRINTANDO AS OPERAÇÕES DISPONÍVEIS NO SERVIDOR
+				int op = dis.read(); 
+				if (op == 1) {
+					System.out.println();
+					System.out.println(dis.readUTF());
+					int send = scn.nextInt();
+					dos.write(send);
+					for (int i = 0; i < send; i++) {
+						System.out.println();
+						System.out.print(dis.readUTF());
+						String name = scn.next();
+						System.out.print(dis.readUTF());
+						int priority = scn.nextInt();
+						scn.nextLine();
+						System.out.print(dis.readUTF());
+						int service = scn.nextInt();
+						scn.nextLine();
+
+						dos.writeUTF(name);
+						dos.write(priority);
+						dos.write(service);
+					}
+					System.out.println();
+
+				} else if (op == 2) {
+					// RETORNA OS CLIENTES PREFERENCIAS NA FILA DE PRIORIDADE, PRINTANDO A SUA POSIÇÃO NA FILA
+					// O NOME DO CLIENTE, A PRIORIDADE E O SERVIÇO REQISITADO
+					int len = dis.read();
+					if (len > 0) {
+						System.out.println("--------------------------------------------------------");
+						for (int i = 0; i < len; i++) {
+							System.out.println("Atendendo o cliente nº " + (i + 1) + " da fila de serviços");
+							System.out.println(dis.readUTF());
+							String received = dis.readUTF();
+							System.out.println(received);
+							System.out.println();
+						}
+						System.out.println("--------------------------------------------------------");
+					} else {
+						System.out.println();
+						System.out.println("Impossível liberar fila de requisiçoes pois está vazia");
+					}
+					
+					System.out.println();
+				} else if (op == 3) {
+					System.out.println();
+					System.out.println("Closing this connection");
+					s.close();
+					System.out.println("Connection closed");
+					break;					
+				} else {
+					System.out.println();
+					System.out.println(dis.readUTF());
+					System.out.println();
+				}
+				
+				}
+				
+
+
+			// closing resources
+			scn.close();
+			dis.close();
+			dos.close();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		sc.close();
 	}
-	
-	
 
 }

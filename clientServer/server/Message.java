@@ -1,4 +1,4 @@
-package client;
+package server;
 
 import java.io.Serializable;
 
@@ -44,7 +44,7 @@ public class Message implements Serializable{
 
 	@Override
 	public String toString() {
-		return "Name Client: " + name + "\nPriority: " + priority;
+		return "Nome do Client: " + name + "\nPrioridade: " + priority;
 	}
 	
 	
