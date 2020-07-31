@@ -87,6 +87,8 @@ public class Client {
 						dos.write(service);
 					}
 					System.out.println();
+					System.out.println("Requisições Adicionadas à fila de serviços do servidor");
+					System.out.println();
 
 				} else if (op == 2) {
 					// RETORNA OS CLIENTES PREFERENCIAS NA FILA DE PRIORIDADE, PRINTANDO A SUA POSIÇÃO NA FILA
