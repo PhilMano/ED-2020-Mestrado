@@ -5,7 +5,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.Iterator;
 import java.util.Scanner;
 
 public class Client {
@@ -43,6 +42,8 @@ public class Client {
 			System.out.println("Serviço 3: Data e Hora");
 			System.out.println("Serviço 4: Impressão");
 			System.out.println("Serviço 5: Acesso a BD");
+			System.out.println("A prioridade é numérica, onde menor o número maior a prioridade, ou seja, prioridade 1"
+					+ " é maior que a prioridade 3.");
 			System.out.println();
 			int err;
 			
